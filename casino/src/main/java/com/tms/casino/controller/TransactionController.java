@@ -1,4 +1,4 @@
-Tpackage com.tms.casino.controller;
+package com.tms.casino.controller;
 
 import com.tms.casino.model.Transaction;
 import com.tms.casino.service.TransactionService;

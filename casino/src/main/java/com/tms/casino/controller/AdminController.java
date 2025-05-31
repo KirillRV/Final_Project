@@ -27,5 +27,6 @@ public class AdminController {
     @PutMapping("/unblock/{userId}")
     public ResponseEntity<User> unblockUser(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.unblockUser(userId));
+
     }
 }
