@@ -15,9 +15,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Table(name = "users")
@@ -26,11 +30,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Integer userId;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -47,7 +51,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "is_verified")
     private boolean isVerified;
+
+    @Column(name = "is_blocked")
     private boolean isBlocked;
 
     @CreationTimestamp
@@ -57,7 +64,38 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public enum Role {
-        USER, MODERATOR, ADMIN
+    // Реализация UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(role);
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !isBlocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isVerified;
+    }
+
+    public enum Role implements GrantedAuthority {
+        USER, MODERATOR, ADMIN;
+
+        @Override
+        public String getAuthority() {
+            return "ROLE_" + name();
+        }
     }
 }
