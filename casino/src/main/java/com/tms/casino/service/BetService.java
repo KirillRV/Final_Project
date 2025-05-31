@@ -1,6 +1,10 @@
 package com.tms.casino.service;
 
-import com.tms.casino.dto.BetRequest;
+import com.tms.casino.exception.EntityNotFoundException;
+import com.tms.casino.exception.GameNotActiveException;
+import com.tms.casino.exception.InsufficientFundsException;
+import com.tms.casino.exception.InvalidBetException;
+import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Bet;
 import com.tms.casino.model.Game;
 import com.tms.casino.model.User;
@@ -26,12 +30,33 @@ public class BetService {
     @Transactional
     public Bet placeBet(String username, BetRequest betRequest) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Game game = gameRepository.findById(betRequest.getGameId())
-                .orElseThrow(() -> new RuntimeException("Game not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        Game game = gameRepository.findById(betRequest.getGameId())
+                .orElseThrow(() -> new EntityNotFoundException("Game not found"));
+
+        // Проверка активности игры
+        if (!game.isActive()) {
+            throw new GameNotActiveException(game.getGameId());
+        }
+
+        // Проверка минимальной/максимальной ставки
+        if (betRequest.getAmount().compareTo(game.getMinBet()) < 0) {
+            throw new InvalidBetException("Bet amount below minimum: " + game.getMinBet());
+        }
+
+        if (betRequest.getAmount().compareTo(game.getMaxBet()) > 0) {
+            throw new InvalidBetException("Bet amount exceeds maximum: " + game.getMaxBet());
+        }
+
+        // Проверка на отрицательную ставку
+        if (betRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidBetException("Bet amount must be positive");
+        }
+
+        // Проверка баланса
         if (user.getBalance().compareTo(betRequest.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundsException();
         }
 
         // Создаем ставку
@@ -41,12 +66,15 @@ public class BetService {
         bet.setAmount(betRequest.getAmount());
         bet.setCreatedAt(LocalDateTime.now());
 
-        // Обрабатываем ставку через игровой движок
+        // Обработка ставки
         BigDecimal payout = gameEngineService.processBet(game, betRequest);
         bet.setPayout(payout);
 
-        // Обновляем баланс пользователя
-        user.setBalance(user.getBalance().subtract(betRequest.getAmount()).add(payout));
+        // Обновление баланса
+        BigDecimal newBalance = user.getBalance()
+                .subtract(betRequest.getAmount())
+                .add(payout);
+        user.setBalance(newBalance);
         userRepository.save(user);
 
         return betRepository.save(bet);
@@ -54,7 +82,7 @@ public class BetService {
 
     public List<Bet> getUserBetHistory(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return betRepository.findByUser(user);
     }
 }

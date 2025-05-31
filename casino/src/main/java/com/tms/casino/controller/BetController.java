@@ -1,6 +1,6 @@
 package com.tms.casino.controller;
 
-import com.tms.casino.dto.BetRequest;
+import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Bet;
 import com.tms.casino.service.BetService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bets")
