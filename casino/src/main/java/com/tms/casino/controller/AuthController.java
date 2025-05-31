@@ -1,7 +1,8 @@
 package com.tms.casino.controller;
 
-import com.tms.casino.dto.AuthRequest;
-import com.tms.casino.dto.AuthResponse;
+import com.tms.casino.model.dto.AuthRequest;
+import com.tms.casino.model.dto.AuthResponse;
+import com.tms.casino.model.dto.RefreshTokenRequest;
 import com.tms.casino.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,8 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<AuthResponse> refreshToken() {
-        return ResponseEntity.ok(authService.refreshToken());
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request.getRefreshToken()));
     }
 }
