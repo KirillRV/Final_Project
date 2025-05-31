@@ -1,9 +1,9 @@
 package com.tms.casino.service;
 
+import com.tms.casino.exception.EntityNotFoundException;
 import com.tms.casino.model.User;
 import com.tms.casino.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -17,7 +17,12 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
     }
 
     @Transactional
@@ -27,23 +32,23 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public User verifyUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = getUserById(userId);
         user.setVerified(true);
         return userRepository.save(user);
     }
 
+    @Transactional
     public User blockUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = getUserById(userId);
         user.setBlocked(true);
         return userRepository.save(user);
     }
 
+    @Transactional
     public User unblockUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = getUserById(userId);
         user.setBlocked(false);
         return userRepository.save(user);
     }
