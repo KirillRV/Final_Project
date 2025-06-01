@@ -1,5 +1,7 @@
 package com.tms.casino.service;
 
+import com.tms.casino.exception.EntityNotFoundException;
+import com.tms.casino.exception.GameNotActiveException;
 import com.tms.casino.model.Game;
 import com.tms.casino.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,13 @@ public class GameService {
 
     public Game getGameById(Long id) {
         return gameRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Game not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Game not found with ID: " + id));
+    }
+
+    public void checkGameActive(Long gameId) {
+        Game game = getGameById(gameId);
+        if (!game.isActive()) {
+            throw new GameNotActiveException(game.getGameId());
+        }
     }
 }

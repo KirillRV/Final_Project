@@ -1,6 +1,6 @@
 package com.tms.casino.service;
 
-import com.tms.casino.dto.BetRequest;
+import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Game;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
