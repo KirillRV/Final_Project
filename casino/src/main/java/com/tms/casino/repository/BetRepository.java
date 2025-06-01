@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BetRepository extends JpaRepository<Bet, Long> {
+public interface BetRepository extends JpaRepository<Bet, Integer> {
     List<Bet> findByUser(User user);
     List<Bet> findByUserAndGame(User user, Game game);
     List<Bet> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
