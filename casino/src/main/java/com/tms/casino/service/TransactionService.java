@@ -1,5 +1,7 @@
 package com.tms.casino.service;
 
+import com.tms.casino.exception.EntityNotFoundException;
+import com.tms.casino.exception.InsufficientFundsException;
 import com.tms.casino.model.Transaction;
 import com.tms.casino.model.Transaction.TransactionType;
 import com.tms.casino.model.User;
@@ -22,13 +24,15 @@ public class TransactionService {
     @Transactional
     public Transaction createDeposit(String username, BigDecimal amount) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        Transaction transaction = new Transaction();
-        transaction.setUser(user);
-        transaction.setAmount(amount);
-        transaction.setType(TransactionType.DEPOSIT);
-        transaction.setCreatedAt(LocalDateTime.now());
+        Transaction transaction = Transaction.builder()
+                .user(user)
+                .amount(amount)
+                .type(TransactionType.DEPOSIT)
+                .status(Transaction.TransactionStatus.COMPLETED)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         user.setBalance(user.getBalance().add(amount));
         userRepository.save(user);
@@ -39,17 +43,19 @@ public class TransactionService {
     @Transactional
     public Transaction createWithdrawal(String username, BigDecimal amount) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (user.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundsException("Available balance: " + user.getBalance());
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setUser(user);
-        transaction.setAmount(amount);
-        transaction.setType(TransactionType.WITHDRAWAL);
-        transaction.setCreatedAt(LocalDateTime.now());
+        Transaction transaction = Transaction.builder()
+                .user(user)
+                .amount(amount)
+                .type(TransactionType.WITHDRAWAL)
+                .status(Transaction.TransactionStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         user.setBalance(user.getBalance().subtract(amount));
         userRepository.save(user);
@@ -59,7 +65,7 @@ public class TransactionService {
 
     public List<Transaction> getUserTransactions(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return transactionRepository.findByUser(user);
     }
 }
