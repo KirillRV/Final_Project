@@ -31,7 +31,7 @@ Comprehensive Online Casino API enabling users to place bets, manage games, trac
 - **Security:** JWT (JSON Web Tokens)
 - **Build Tool:** Maven
 - **API Documentation:** Swagger UI available
-- **Testing:** JUnit and Postman collections
+- **Testing:** Postman collections
 
 ---
 
@@ -45,8 +45,6 @@ Key tables include:
 | `bets`         | Records individual user bets                 |
 | `transactions` | Logs all financial operations                |
 | `roles`        | User roles and permissions                    |
-
-*See the full DDL scripts and ER diagrams in the repository.*
 
 ---
 
