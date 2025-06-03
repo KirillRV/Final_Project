@@ -1,9 +1,10 @@
 package com.tms.casino.service;
 
-import com.tms.casino.exception.EntityNotFoundException;
+import com.tms.casino.exception.CasinoRuntimeException;
 import com.tms.casino.model.User;
 import com.tms.casino.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -17,12 +18,20 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found with username: " + username,
+                        HttpStatus.NOT_FOUND
+                ));
     }
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found with ID: " + userId,
+                        HttpStatus.NOT_FOUND
+                ));
     }
 
     @Transactional

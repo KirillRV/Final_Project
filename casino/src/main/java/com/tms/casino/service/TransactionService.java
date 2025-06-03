@@ -1,13 +1,13 @@
 package com.tms.casino.service;
 
-import com.tms.casino.exception.EntityNotFoundException;
-import com.tms.casino.exception.InsufficientFundsException;
+import com.tms.casino.exception.CasinoRuntimeException;
 import com.tms.casino.model.Transaction;
 import com.tms.casino.model.Transaction.TransactionType;
 import com.tms.casino.model.User;
 import com.tms.casino.repository.TransactionRepository;
 import com.tms.casino.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -24,7 +24,11 @@ public class TransactionService {
     @Transactional
     public Transaction createDeposit(String username, BigDecimal amount) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
 
         Transaction transaction = Transaction.builder()
                 .user(user)
@@ -43,11 +47,20 @@ public class TransactionService {
     @Transactional
     public Transaction createWithdrawal(String username, BigDecimal amount) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
 
         if (user.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException("Available balance: " + user.getBalance());
+            throw new CasinoRuntimeException(
+                    "INSUFFICIENT_FUNDS",
+                    "Available balance: " + user.getBalance(),
+                    HttpStatus.BAD_REQUEST
+            );
         }
+
 
         Transaction transaction = Transaction.builder()
                 .user(user)
@@ -65,7 +78,11 @@ public class TransactionService {
 
     public List<Transaction> getUserTransactions(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
         return transactionRepository.findByUser(user);
     }
 }

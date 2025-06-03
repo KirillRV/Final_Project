@@ -1,9 +1,6 @@
 package com.tms.casino.service;
 
-import com.tms.casino.exception.EntityNotFoundException;
-import com.tms.casino.exception.GameNotActiveException;
-import com.tms.casino.exception.InsufficientFundsException;
-import com.tms.casino.exception.InvalidBetException;
+import com.tms.casino.exception.CasinoRuntimeException;
 import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Bet;
 import com.tms.casino.model.Game;
@@ -12,6 +9,7 @@ import com.tms.casino.repository.BetRepository;
 import com.tms.casino.repository.GameRepository;
 import com.tms.casino.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -30,33 +28,62 @@ public class BetService {
     @Transactional
     public Bet placeBet(String username, BetRequest betRequest) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
 
         Game game = gameRepository.findById(betRequest.getGameId())
-                .orElseThrow(() -> new EntityNotFoundException("Game not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "Game not found",
+                        HttpStatus.NOT_FOUND
+                ));
 
         // Проверка активности игры
         if (!game.isActive()) {
-            throw new GameNotActiveException(game.getGameId());
+            throw new CasinoRuntimeException(
+                    "GAME_NOT_ACTIVE",                // код ошибки
+                    "Game with id " + game.getGameId() + " is not active",  // сообщение
+                    HttpStatus.BAD_REQUEST            // HTTP статус
+            );
+
         }
 
-        // Проверка минимальной/максимальной ставки
         if (betRequest.getAmount().compareTo(game.getMinBet()) < 0) {
-            throw new InvalidBetException("Bet amount below minimum: " + game.getMinBet());
+            throw new CasinoRuntimeException(
+                    "INVALID_BET",
+                    "Bet amount below minimum: " + game.getMinBet(),
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
         if (betRequest.getAmount().compareTo(game.getMaxBet()) > 0) {
-            throw new InvalidBetException("Bet amount exceeds maximum: " + game.getMaxBet());
+            throw new CasinoRuntimeException(
+                    "INVALID_BET",
+                    "Bet amount exceeds maximum: " + game.getMaxBet(),
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
-        // Проверка на отрицательную ставку
+// Проверка на отрицательную ставку
         if (betRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidBetException("Bet amount must be positive");
+            throw new CasinoRuntimeException(
+                    "INVALID_BET",
+                    "Bet amount must be positive",
+                    HttpStatus.BAD_REQUEST
+            );
         }
 
         // Проверка баланса
         if (user.getBalance().compareTo(betRequest.getAmount()) < 0) {
-            throw new InsufficientFundsException();
+            throw new CasinoRuntimeException(
+                    "INSUFFICIENT_FUNDS",
+                    "Insufficient balance for the bet",
+                    HttpStatus.BAD_REQUEST
+            );
+
         }
 
         // Создаем ставку
@@ -82,7 +109,11 @@ public class BetService {
 
     public List<Bet> getUserBetHistory(String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                .orElseThrow(() -> new CasinoRuntimeException(
+                        "NOT_FOUND",
+                        "User not found",
+                        HttpStatus.NOT_FOUND
+                ));
         return betRepository.findByUser(user);
     }
 }

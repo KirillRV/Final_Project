@@ -2,20 +2,18 @@ package com.tms.casino.exception;
 
 import org.springframework.http.HttpStatus;
 
-public abstract class CasinoRuntimeException extends RuntimeException {
+public class CasinoRuntimeException extends RuntimeException {
+    private final String errorCode;
     private final HttpStatus httpStatus;
 
-    public CasinoRuntimeException(String message, HttpStatus httpStatus) {
+    public CasinoRuntimeException(String errorCode, String message, HttpStatus httpStatus) {
         super(message);
+        this.errorCode = errorCode;
         this.httpStatus = httpStatus;
     }
 
-    public CasinoRuntimeException(String message) {
-        this(message, HttpStatus.BAD_REQUEST);
-    }
-
-    public CasinoRuntimeException() {
-        this("Invalid operation", HttpStatus.BAD_REQUEST);
+    public String getErrorCode() {
+        return errorCode;
     }
 
     public HttpStatus getHttpStatus() {

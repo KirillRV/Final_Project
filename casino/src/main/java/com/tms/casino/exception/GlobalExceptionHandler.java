@@ -3,6 +3,8 @@ package com.tms.casino.exception;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.jsonwebtoken.JwtException;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,8 +16,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,28 +26,21 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Кастомные исключения казино
-    @ExceptionHandler(InsufficientFundsException.class)
-    public ResponseEntity<Map<String, String>> handleInsufficientFunds(InsufficientFundsException ex) {
-        logger.error("Insufficient funds: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+    // ===== КАСТОМНЫЕ ИСКЛЮЧЕНИЯ =====
+
+    @ExceptionHandler(CasinoRuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleCasinoRuntimeException(CasinoRuntimeException ex) {
+        logger.error("Casino exception: {}", ex.getMessage());
+        return ResponseEntity.status(ex.getHttpStatus())
                 .body(Map.of(
-                        "error", "INSUFFICIENT_FUNDS",
+                        "error", ex.getClass().getSimpleName().toUpperCase(),
                         "message", ex.getMessage()
                 ));
     }
 
-    @ExceptionHandler(GameNotActiveException.class)
-    public ResponseEntity<Map<String, String>> handleGameNotActive(GameNotActiveException ex) {
-        logger.error("Game not active: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of(
-                        "error", "GAME_NOT_ACTIVE",
-                        "message", ex.getMessage()
-                ));
-    }
 
-    // Стандартные исключения Spring/Security
+    // ===== СТАНДАРТНЫЕ ИСКЛЮЧЕНИЯ =====
+
     @ExceptionHandler({AuthenticationServiceException.class, BadCredentialsException.class})
     public ResponseEntity<Map<String, String>> handleAuthenticationException(Exception ex) {
         logger.error("Authentication failed: {}", ex.getMessage());
@@ -88,39 +81,6 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    // Обработка валидации
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        logger.error("Validation errors: {}", errors);
-        return ResponseEntity.badRequest().body(errors);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        String errorMessage = "Invalid request format";
-
-        if (ex.getCause() instanceof InvalidFormatException) {
-            InvalidFormatException ife = (InvalidFormatException) ex.getCause();
-            if (ife.getTargetType() != null && ife.getTargetType().isEnum()) {
-                errorMessage = String.format("Invalid value '%s' for field '%s'. Allowed values: %s",
-                        ife.getValue(),
-                        ife.getPath().get(ife.getPath().size() - 1).getFieldName(),
-                        Arrays.toString(ife.getTargetType().getEnumConstants()));
-            }
-        }
-
-        logger.error("Bad request: {}", errorMessage);
-        return ResponseEntity.badRequest()
-                .body(Map.of("error", "BAD_REQUEST", "message", errorMessage));
-    }
-
-    // Обработка JPA исключений
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFound(EntityNotFoundException ex) {
         logger.error("Entity not found: {}", ex.getMessage());
@@ -141,7 +101,38 @@ public class GlobalExceptionHandler {
                 ));
     }
 
-    // Общий обработчик
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        logger.error("Validation errors: {}", errors);
+        return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        String errorMessage = "Invalid request format";
+
+        if (ex.getCause() instanceof InvalidFormatException ife) {
+            if (ife.getTargetType() != null && ife.getTargetType().isEnum()) {
+                errorMessage = String.format("Invalid value '%s' for field '%s'. Allowed values: %s",
+                        ife.getValue(),
+                        ife.getPath().get(ife.getPath().size() - 1).getFieldName(),
+                        Arrays.toString(ife.getTargetType().getEnumConstants()));
+            }
+        }
+
+        logger.error("Bad request: {}", errorMessage);
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", "BAD_REQUEST", "message", errorMessage));
+    }
+
+    // ===== ОБЩИЙ ОБРАБОТЧИК =====
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
         logger.error("Internal server error: {}", ex.getMessage(), ex);
