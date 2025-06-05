@@ -48,7 +48,7 @@ public class Game {
     private BigDecimal maxBet;
 
     @Column(precision = 5, scale = 2)
-    private BigDecimal rtp; // Процент возврата (Return to Player)
+    private BigDecimal rtp; // (Return to Player)
 
-    private String volatility; // Низкая, средняя, высокая
+    private String volatility; // Low, medium, high
 }

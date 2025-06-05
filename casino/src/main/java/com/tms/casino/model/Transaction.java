@@ -45,8 +45,8 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    private String externalId; // ID в платежной системе
-    private String metadata;   // Дополнительные данные
+    private String externalId; // ID in payment system
+    private String metadata;   // Additional data
 
     @CreationTimestamp
     @Column(updatable = false)

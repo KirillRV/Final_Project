@@ -31,7 +31,7 @@ public class Bonus {
     @Enumerated(EnumType.STRING)
     private BonusStatus status;
 
-    private BigDecimal wageringRequirement; // Требование по отыгрышу
+    private BigDecimal wageringRequirement; // Wagering requirement
     private LocalDateTime expiresAt;
     private LocalDateTime createdAt;
 

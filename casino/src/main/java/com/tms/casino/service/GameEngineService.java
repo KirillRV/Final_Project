@@ -12,11 +12,10 @@ public class GameEngineService {
     private final Random random = new Random();
 
     public BigDecimal processBet(Game game, BetRequest betRequest) {
-        // Простая реализация игрового движка
-        boolean isWin = random.nextDouble() < 0.4; // 40% шанс выигрыша
+        boolean isWin = random.nextDouble() < 0.4; // 40% win chance
 
         if (isWin) {
-            // Коэффициент выигрыша 1.5-3x
+            // Win multiplier coefficient 1.5-3x
             double multiplier = 1.5 + random.nextDouble() * 1.5;
             return betRequest.getAmount().multiply(BigDecimal.valueOf(multiplier));
         }

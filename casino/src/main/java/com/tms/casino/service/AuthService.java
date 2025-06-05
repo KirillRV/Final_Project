@@ -22,7 +22,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) {
-        // Проверяем, что пользователь с таким username/email не существует
+        // Check if a user with the given username or email already exists
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException("Username already taken");
         }
@@ -30,20 +30,26 @@ public class AuthService {
             throw new RuntimeException("Email already registered");
         }
 
+        // Create a new user entity and encode the password
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(User.Role.valueOf("USER"));  // или твоя логика ролей
+        user.setRole(User.Role.valueOf("USER"));
 
+        // Save the new user in the database
         userRepository.save(user);
 
+        // Generate a JWT token for the new user
         String jwtToken = jwtService.generateToken(user);
 
+        // Return the JWT token wrapped in AuthResponse
         return new AuthResponse(jwtToken);
     }
 
     public AuthResponse authenticate(AuthRequest request) {
+
+        // Authenticate the user credentials (username and password)
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -51,11 +57,14 @@ public class AuthService {
                 )
         );
 
+        // Retrieve the user from the database by username
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Generate a JWT token for the authenticated user
         String jwtToken = jwtService.generateToken(user);
 
+        // Return the JWT token wrapped in AuthResponse
         return new AuthResponse(jwtToken);
     }
 }

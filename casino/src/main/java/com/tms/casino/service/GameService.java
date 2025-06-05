@@ -26,16 +26,4 @@ public class GameService {
                         HttpStatus.NOT_FOUND
                 ));
     }
-
-    public void checkGameActive(Long gameId) {
-        Game game = getGameById(gameId);
-        if (!game.isActive()) {
-            throw new CasinoRuntimeException(
-                    "GAME_NOT_ACTIVE",
-                    "Game with id " + game.getGameId() + " is not active",
-                    HttpStatus.BAD_REQUEST
-            );
-        }
-
-    }
 }

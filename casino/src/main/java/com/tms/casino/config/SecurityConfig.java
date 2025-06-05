@@ -36,13 +36,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v3/api-docs/**",       // Разрешаем документацию OpenAPI
-                                "/swagger-ui/**",        // Разрешаем Swagger UI
-                                "/swagger-ui.html",      // Разрешаем HTML страницу Swagger
-                                "/webjars/**",           // Разрешаем ресурсы Swagger
-                                "/swagger-resources/**", // Разрешаем ресурсы Swagger
-                                "/auth/**",              // Разрешаем аутентификацию
-                                "/registration"          // Разрешаем регистрацию
+                                "/v3/api-docs/**",       // Allow OpenAPI documentation
+                                "/swagger-ui/**",        // Allow Swagger UI
+                                "/swagger-ui.html",      // Allow Swagger HTML page
+                                "/webjars/**",           // Allow Swagger static resources
+                                "/swagger-resources/**", // Allow Swagger resources
+                                "/auth/**",              // Allow authentication
+                                "/api/auth/register"    // Allow registration
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

@@ -45,7 +45,7 @@ public class Bet {
     private BigDecimal payout;
 
     @Column(columnDefinition = "JSONB")
-    private String outcome; // Результаты ставки в JSON
+    private String outcome; // Bet results in JSON
 
     @CreationTimestamp
     @Column(updatable = false)

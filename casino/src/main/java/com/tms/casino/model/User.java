@@ -64,7 +64,7 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    // Реализация UserDetails
+    // Realization of UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(role);
@@ -91,7 +91,7 @@ public class User implements UserDetails {
     }
 
     public enum Role implements GrantedAuthority {
-        USER, MODERATOR, ADMIN;
+        USER, ADMIN;
 
         @Override
         public String getAuthority() {

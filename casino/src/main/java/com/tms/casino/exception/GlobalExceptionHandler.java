@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // ===== КАСТОМНЫЕ ИСКЛЮЧЕНИЯ =====
+    // ===== Custom Exception =====
 
     @ExceptionHandler(CasinoRuntimeException.class)
     public ResponseEntity<Map<String, String>> handleCasinoRuntimeException(CasinoRuntimeException ex) {
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    // ===== СТАНДАРТНЫЕ ИСКЛЮЧЕНИЯ =====
+    // ===== Standart Exception =====
 
     @ExceptionHandler({AuthenticationServiceException.class, BadCredentialsException.class})
     public ResponseEntity<Map<String, String>> handleAuthenticationException(Exception ex) {
@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
         logger.error("Validation errors: {}", errors);
         return ResponseEntity.badRequest().body(errors);
     }
-
+    
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         String errorMessage = "Invalid request format";
@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", "BAD_REQUEST", "message", errorMessage));
     }
 
-    // ===== ОБЩИЙ ОБРАБОТЧИК =====
+    // ===== COMMON HANDLER =====
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
