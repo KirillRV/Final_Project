@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
         logger.error("Validation errors: {}", errors);
         return ResponseEntity.badRequest().body(errors);
     }
-    
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         String errorMessage = "Invalid request format";

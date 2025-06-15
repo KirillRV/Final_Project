@@ -1,6 +1,5 @@
-package com.tms.casino.config;
+package com.tms.casino.security;
 
-import com.tms.casino.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +41,7 @@ public class SecurityConfig {
                                 "/webjars/**",           // Allow Swagger static resources
                                 "/swagger-resources/**", // Allow Swagger resources
                                 "/auth/**",              // Allow authentication
-                                "/api/auth/register"    // Allow registration
+                                "/api/v1/auth/register"    // Allow registration
                         ).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()

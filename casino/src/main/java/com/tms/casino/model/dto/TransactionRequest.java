@@ -1,6 +1,7 @@
 package com.tms.casino.model.dto;
 
 import lombok.*;
+
 import java.math.BigDecimal;
 
 @Data

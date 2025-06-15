@@ -14,7 +14,7 @@ public class CasinoUtils {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    // Генерация случайного промокода
+
     public String generatePromoCode(int length) {
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
@@ -24,12 +24,12 @@ public class CasinoUtils {
         return sb.toString();
     }
 
-    // Расчет бонуса для нового пользователя
+
     public BigDecimal calculateWelcomeBonus() {
         return BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_UP);
     }
 
-    // Расчет кэшбэка на основе активности
+
     public BigDecimal calculateCashback(User user, BigDecimal betAmount) {
         BigDecimal cashbackPercent = BigDecimal.valueOf(0.05); // 5% по умолчанию
         if (user.getBalance().compareTo(BigDecimal.valueOf(1000)) > 0) {
@@ -38,24 +38,21 @@ public class CasinoUtils {
         return betAmount.multiply(cashbackPercent).setScale(2, RoundingMode.HALF_UP);
     }
 
-    // Проверка возраста пользователя
+
     public boolean isUserOfLegalAge(int age) {
         return age >= 18; // Минимальный возраст для азартных игр
     }
 
-    // Генерация случайного результата для игры
     public int generateGameOutcome(int min, int max) {
         return new Random().nextInt((max - min) + 1) + min;
     }
 
-    // Форматирование суммы для отображения
     public String formatCurrency(BigDecimal amount) {
         return amount.setScale(2, RoundingMode.HALF_UP) + " USD";
     }
 
-    // Валидация платежных данных
     public boolean isValidPaymentMethod(String cardNumber) {
-        // Простая валидация Luhn algorithm
+
         if (cardNumber == null || cardNumber.length() < 13) return false;
 
         int sum = 0;

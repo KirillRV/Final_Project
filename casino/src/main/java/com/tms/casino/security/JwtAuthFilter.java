@@ -1,7 +1,5 @@
 package com.tms.casino.security;
 
-import com.tms.casino.model.User;
-import com.tms.casino.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,58 +28,39 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+
         final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String username;
 
-
-        if (isPublicEndpoint(request)) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-
-        if (authHeader == null || authHeader.isBlank() || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+        jwt = authHeader.substring(7);
+        try {
+            username = jwtService.extractUsername(jwt);
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid JWT token: " + e.getMessage());
             return;
         }
-
-        final String jwt = authHeader.substring(7);
-
-
-        if (jwt.isBlank()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String username = jwtService.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                if (userDetails instanceof User) {
-                    request.setAttribute("userId", ((User) userDetails).getUserId());
-                }
-
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        filterChain.doFilter(request, response);
-    }
 
-    private boolean isPublicEndpoint(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/api/auth/register") ||
-                path.startsWith("/auth/") ||
-                path.startsWith("/swagger-ui") ||
-                path.startsWith("/v3/api-docs");
+        filterChain.doFilter(request, response);
     }
 }

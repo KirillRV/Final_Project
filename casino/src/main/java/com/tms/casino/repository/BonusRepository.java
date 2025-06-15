@@ -11,6 +11,8 @@ import java.util.List;
 @Repository
 public interface BonusRepository extends JpaRepository<Bonus, Long> {
     List<Bonus> findByUser(User user);
+
     List<Bonus> findByUserAndStatus(User user, Bonus.BonusStatus status);
+
     List<Bonus> findByExpiresAtBeforeAndStatus(LocalDateTime date, Bonus.BonusStatus status);
 }

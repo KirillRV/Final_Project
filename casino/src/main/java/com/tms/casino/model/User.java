@@ -42,7 +42,7 @@ public class User implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password;
 
     @Column(precision = 15, scale = 2)
@@ -50,6 +50,7 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
 
     @Column(name = "is_verified")
     private boolean isVerified;

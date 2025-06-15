@@ -66,5 +66,6 @@ public class AuthService {
 
         // Return the JWT token wrapped in AuthResponse
         return new AuthResponse(jwtToken);
+
     }
 }

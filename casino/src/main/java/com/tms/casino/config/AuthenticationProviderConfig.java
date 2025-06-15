@@ -1,6 +1,6 @@
 package com.tms.casino.config;
 
-import com.tms.casino.service.UserDetailsServiceImpl;
+import com.tms.casino.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

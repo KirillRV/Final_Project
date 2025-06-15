@@ -1,4 +1,4 @@
-package com.tms.casino.service;
+package com.tms.casino.security;
 
 import com.tms.casino.model.User;
 import com.tms.casino.repository.UserRepository;
