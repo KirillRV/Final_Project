@@ -2,6 +2,7 @@ package com.tms.casino.controller;
 
 import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Bet;
+import com.tms.casino.model.dto.BetResult;
 import com.tms.casino.service.BetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,9 @@ public class BetController {
     private final BetService betService;
 
     @PostMapping
-    public ResponseEntity<Bet> placeBet(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody BetRequest betRequest) {
+    public ResponseEntity<BetResult> placeBet(    // <-- BetResult вместо Bet
+                                                  @AuthenticationPrincipal UserDetails userDetails,
+                                                  @RequestBody BetRequest betRequest) {
         return ResponseEntity.ok(betService.placeBet(userDetails.getUsername(), betRequest));
     }
 

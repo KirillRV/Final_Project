@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface BetRepository extends JpaRepository<Bet, Integer> {
-    // Find all bets of a certain user
-    List<Bet> findByUser(User user);
+
+    List<Bet> findByUserOrderByCreatedAtDesc(User user);
+
 }
