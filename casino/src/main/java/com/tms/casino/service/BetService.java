@@ -5,6 +5,7 @@ import com.tms.casino.model.dto.BetRequest;
 import com.tms.casino.model.Bet;
 import com.tms.casino.model.Game;
 import com.tms.casino.model.User;
+import com.tms.casino.model.dto.BetResult;
 import com.tms.casino.repository.BetRepository;
 import com.tms.casino.repository.GameRepository;
 import com.tms.casino.repository.UserRepository;
@@ -27,8 +28,7 @@ public class BetService {
     private final GameEngineService gameEngineService;
 
     @Transactional
-    public Bet placeBet(String username, BetRequest betRequest) {
-        // Find user by username, throw exception if not found
+    public BetResult placeBet(String username, BetRequest betRequest) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CasinoRuntimeException(
                         "NOT_FOUND",
@@ -36,7 +36,6 @@ public class BetService {
                         HttpStatus.NOT_FOUND
                 ));
 
-        // Find game by ID from request, throw exception if not found
         Game game = gameRepository.findById(betRequest.getGameId())
                 .orElseThrow(() -> new CasinoRuntimeException(
                         "NOT_FOUND",
@@ -52,7 +51,6 @@ public class BetService {
             );
         }
 
-        // Check that the bet amount is not less than the game's minimum bet
         if (betRequest.getAmount().compareTo(game.getMinBet()) < 0) {
             throw new CasinoRuntimeException(
                     "INVALID_BET",
@@ -61,7 +59,6 @@ public class BetService {
             );
         }
 
-        // Check that the bet amount does not exceed the game's maximum bet
         if (betRequest.getAmount().compareTo(game.getMaxBet()) > 0) {
             throw new CasinoRuntimeException(
                     "INVALID_BET",
@@ -86,30 +83,29 @@ public class BetService {
             );
         }
 
-        // Create new Bet and set its properties
         Bet bet = new Bet();
         bet.setUser(user);
         bet.setGame(game);
         bet.setAmount(betRequest.getAmount());
         bet.setCreatedAt(LocalDateTime.now());
 
-        // Process the bet: call game engine service to calculate payout
-        BigDecimal payout = gameEngineService.processBet(game, betRequest);
+        BigDecimal payout = gameEngineService.processBet(game, betRequest.getAmount());
         bet.setPayout(payout);
+
 
         BigDecimal newBalance = user.getBalance()
                 .subtract(betRequest.getAmount())
                 .add(payout);
         user.setBalance(newBalance);
 
-        // Save updated user
         userRepository.save(user);
+        betRepository.save(bet);
 
-        // Save and return the bet
-        return betRepository.save(bet);
+        boolean win = payout.compareTo(BigDecimal.ZERO) > 0;
+        String message = win ? "You won!" : "You lost, try again";
+
+        return new BetResult(win, payout, betRequest.getAmount(), message);
     }
-
-    // Get bet history for user by username
     public List<Bet> getUserBetHistory(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CasinoRuntimeException(
@@ -117,6 +113,7 @@ public class BetService {
                         "User not found",
                         HttpStatus.NOT_FOUND
                 ));
-        return betRepository.findByUser(user);
+        return betRepository.findByUserOrderByCreatedAtDesc(user);
     }
 }
+
