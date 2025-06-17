@@ -66,4 +66,9 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+    public void deleteUser(Integer userId) {
+        User user = userRepository.findById(userId.longValue())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        userRepository.delete(user);
+    }
 }

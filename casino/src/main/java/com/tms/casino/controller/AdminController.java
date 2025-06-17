@@ -30,4 +30,13 @@ public class AdminController {
         return ResponseEntity.ok(userService.unblockUser(userId));
 
     }
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable Integer userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.ok("Пользователь с id " + userId + " успешно удалён.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("Пользователь с id " + userId + " не найден.");
+        }
+    }
 }
