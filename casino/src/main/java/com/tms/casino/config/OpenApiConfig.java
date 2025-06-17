@@ -26,7 +26,7 @@ public class OpenApiConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")))
                 .info(new Info()
-                        .title("Online Casino API")
+                        .title("Online Casino")
                         .description("Backend API for Online Casino Platform")
                         .version("1.0.0")
                         .contact(new Contact()

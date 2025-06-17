@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
 @OpenAPIDefinition(info = @Info(
-        title = "Online Casino API",
+        title = "Online Casino",
         description = "Backend system for online casino operations",
         version = "1.0.0"
 ))

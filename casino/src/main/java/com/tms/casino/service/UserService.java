@@ -36,13 +36,6 @@ public class UserService {
     }
 
     @Transactional
-    public User updateBalance(String username, BigDecimal amount) {
-        User user = getUserByUsername(username);
-        user.setBalance(user.getBalance().add(amount));
-        return userRepository.save(user);
-    }
-
-    @Transactional
     public User verifyUser(Long userId) {
         User user = getUserById(userId);
         user.setVerified(true);
