@@ -106,6 +106,7 @@ public class BetService {
 
         return new BetResult(win, payout, betRequest.getAmount(), message);
     }
+
     public List<Bet> getUserBetHistory(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CasinoRuntimeException(

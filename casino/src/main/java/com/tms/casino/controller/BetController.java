@@ -20,9 +20,9 @@ public class BetController {
     private final BetService betService;
 
     @PostMapping
-    public ResponseEntity<BetResult> placeBet(    // <-- BetResult вместо Bet
-                                                  @AuthenticationPrincipal UserDetails userDetails,
-                                                  @RequestBody BetRequest betRequest) {
+    public ResponseEntity<BetResult> placeBet(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody BetRequest betRequest) {
         return ResponseEntity.ok(betService.placeBet(userDetails.getUsername(), betRequest));
     }
 

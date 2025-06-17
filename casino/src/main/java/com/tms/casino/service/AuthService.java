@@ -36,9 +36,9 @@ public class AuthService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(User.Role.USER)
-                .isVerified(true) // можно сделать false, если хочешь ручную активацию
+                .isVerified(true)
                 .isBlocked(false)
-                .balance(BigDecimal.ZERO)
+                .balance(new BigDecimal("500"))
                 .build();
 
         userRepository.save(user);

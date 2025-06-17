@@ -16,12 +16,18 @@ public class GameEngineService {
 
     public BigDecimal processBet(Game game, BigDecimal betAmount) {
         switch (game.getGameId().intValue()) {
-            case 1: return playRoulette(betAmount);
-            case 2: return playDice(betAmount);
-            case 3: return playSlotMachine(betAmount);
-            case 4: return playCardGame(betAmount);
-            case 5: return playCoinFlip(betAmount);
-            default: return playDefaultGame(betAmount);
+            case 1:
+                return playRoulette(betAmount);
+            case 2:
+                return playDice(betAmount);
+            case 3:
+                return playSlotMachine(betAmount);
+            case 4:
+                return playCardGame(betAmount);
+            case 5:
+                return playCoinFlip(betAmount);
+            default:
+                return playDefaultGame(betAmount);
         }
     }
 

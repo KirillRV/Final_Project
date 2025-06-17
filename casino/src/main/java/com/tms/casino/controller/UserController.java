@@ -8,10 +8,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -20,13 +18,6 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.getUserByUsername(userDetails.getUsername()));
-    }
-
-    @PutMapping("/balance")
-    public ResponseEntity<User> updateBalance(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam BigDecimal amount) {
-        return ResponseEntity.ok(userService.updateBalance(userDetails.getUsername(), amount));
     }
 
     @PutMapping("/verify")
