@@ -148,7 +148,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.teachmeskills.tms_booking_project.TmsCasinoApplication</mainClass>
+                    <mainClass>com.teachmeskills.tms_online_casino.TmsCasinoApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
